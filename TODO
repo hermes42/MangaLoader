@@ -1,6 +1,11 @@
 TODO
 ----
 
-- zipper error, if dir does not exist
+- BUG: zipper error, if dir does not exist (e.g. if manga is at the end)
+- MangaReader: internal name
+  - " " => "-" (remove multi "-" occurence)
+  - to lower
+  - remove "!", "-", "'"
+- implement threads to load multiple chapters/images
 - write all image data into a file
 - read image data from file and load manga

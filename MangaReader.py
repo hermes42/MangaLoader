@@ -47,7 +47,7 @@ class Module():
 					return False
 			tryCounter = tryCounter + 1
 		
-		logger.info("start parsing")
+		logger.debug("start parsing")
 		parser = Parser()
 		parser.feed(result)
 		
