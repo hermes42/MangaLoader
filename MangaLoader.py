@@ -185,6 +185,3 @@ with LogHelper() as l:
 	
 	logger.info("MangaLoader done")
 
-
-# TODO write all image data into a file
-# TODO read image data from file

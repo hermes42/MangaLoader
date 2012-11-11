@@ -203,7 +203,7 @@ class Loader():
 				out.write(f.read())
 				out.close()
 				return True
-			except URLError:
+			except urllib2.URLError:
 				loggger.warning("failed to load \"" + str(source) +"\" (" + tryCounter + ")")
 				if tryCounter >= 5:
 					loggger.error("failed to load \"" + str(source) +"\"")
