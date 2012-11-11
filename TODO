@@ -1,0 +1,6 @@
+TODO
+----
+
+- zipper error, if dir does not exist
+- write all image data into a file
+- read image data from file and load manga
