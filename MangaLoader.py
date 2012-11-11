@@ -1,3 +1,6 @@
+#!/usr/bin/python2.7
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 import time
@@ -106,7 +109,7 @@ with LogHelper() as l:
 	(options, args) = parser.parse_args()
 	
 	if options.version != None:
-		print "MangaLoader v0.3"
+		print "MangaLoader v0.1 alpha"
 		sys.exit()
 	
 	if options.name is None:

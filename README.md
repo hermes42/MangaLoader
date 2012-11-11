@@ -13,4 +13,4 @@ MangaLoader is released under the GNU General Public License v2 or newer
 
 REQUIREMENTS
 ------------
-MangaLoader requires Python 2
+MangaLoader requires Python 2.7
