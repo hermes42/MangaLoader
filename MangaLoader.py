@@ -7,8 +7,10 @@ import time
 import logging
 from optparse import OptionParser
 
-import MangaBase
-import MangaReader
+import src.MangaBase as MangaBase
+import src.plugins.MangaReaderPlugin as MangaReaderPlugin
+import src.plugins.MangaHerePlugin as MangaHerePlugin
+import src.plugins.EatMangaPlugin as EatMangaPlugin
 
 # -------------------------------------------------------------------------------------------------
 #  logging
@@ -18,7 +20,7 @@ logger = logging.getLogger("MangaLoader")
 
 DATA_DIR = os.getenv("HOME") + "/.MangaLoader"
 LOG_FORMAT = "%(asctime)-23s [%(levelname)8s] %(name)-15s %(message)s (%(filename)s:%(lineno)s)"
-LOG_LEVEL = logging.WARNING
+LOG_LEVEL = logging.DEBUG
 
 class LogHelper(object):
 
@@ -70,11 +72,18 @@ with LogHelper() as l:
 					action="store_true",
 					dest="version",
 					help="show version information")
-	parser.add_option("-m",
-					"--MangaReader",
+	parser.add_option("--MangaReader",
 					action="store_true",
 					dest="MangaReader",
-					help="use MangaReader module")
+					help="use MangaReader plugin")
+	parser.add_option("--MangaHere",
+					action="store_true",
+					dest="MangaHere",
+					help="use MangaHere plugin")
+	parser.add_option("--EatManga",
+					action="store_true",
+					dest="EatManga",
+					help="use EatManga plugin")
 	parser.add_option("-z",
 					action="store_true",
 					dest="Zip",
@@ -122,14 +131,26 @@ with LogHelper() as l:
 		print "Missing destination folder."
 		sys.exit()
 	
-	if options.range is None and options.image is None:
+	if (options.range is None) and (options.image is None):
 		logger.error("neither range nor image option specified")
 		print "Specify at least range of images."
 		sys.exit()
 	
-	if options.MangaReader is None:
-		logger.error("no module selected")
-		print "Specify exactly one protocol."
+	pluginCount = 0
+	if (options.MangaReader is not None):
+		pluginCount = pluginCount + 1
+	if (options.MangaHere is not None):
+		pluginCount = pluginCount + 1
+	if (options.EatManga is not None):
+		pluginCount = pluginCount + 1
+	
+	if  pluginCount <= 0:
+		logger.error("no plugin selected")
+		print "Specify exactly one plugin."
+		sys.exit()
+	if  pluginCount > 1:
+		logger.error("multiple plugins selected")
+		print "Specify exactly one plugin."
 		sys.exit()
 	
 	logger.debug("options parse done")
@@ -157,13 +178,19 @@ with LogHelper() as l:
 	
 	doZip = options.Zip != None
 	
-	logger.info("loading module")
+	logger.info("loading plugin")
 	if options.MangaReader is not None:
-		module = MangaReader.Module()
-		logger.debug("using MangaLoader module")
+		plugin = MangaReaderPlugin.MangaReaderPlugin()
+		logger.debug("using MangaLoader plugin")
+	elif options.MangaHere is not None:
+		plugin = MangaHerePlugin.MangaHerePlugin()
+		logger.debug("using MangaHere plugin")
+	elif options.EatManga is not None:
+		plugin = EatMangaPlugin.EatMangaPlugin()
+		logger.debug("using EatManga plugin")
 	
 	logger.info("loading Loader")
-	loader = MangaBase.Loader(module, destDir)
+	loader = MangaBase.Loader(plugin, destDir)
 	
 	if useRange:
 		logger.info("loading chapters " + str(startChapter) + " - " + str(endChapter))

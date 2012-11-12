@@ -1,6 +1,7 @@
 TODO
 ----
 
+- BUG: uses wrong Manga image destination names for MangaHere downloads
 - BUG: zipper error, if dir does not exist (e.g. if manga is at the end)
 - MangaReader: internal name
   - " " => "-" (remove multi "-" occurence)
@@ -18,6 +19,7 @@ TODO
 - write all image data into a file
 - read image data from file and load manga
 
+- use path/url function to concate paths/urls
 - improvements and ready for 2to3
   - "new style" clases e.g. class Blub(object)
   - add comments

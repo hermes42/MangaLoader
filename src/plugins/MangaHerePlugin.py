@@ -12,15 +12,17 @@ import src.PluginBase as PluginBase
 #  logging
 # -------------------------------------------------------------------------------------------------
 
-logger = logging.getLogger('MangaReaderPlugin')
+logger = logging.getLogger('MangaHerePlugin')
+
+# TODO implement volume support (e.g. http://www.mangahere.com/manga/naruto/v60/c600/ - volume 60)
 
 # -------------------------------------------------------------------------------------------------
-#  Plugin class
+#  Module class
 # -------------------------------------------------------------------------------------------------
-class MangaReaderPlugin(PluginBase.PluginBase):
+class MangaHerePlugin(PluginBase.PluginBase):
 
 	def __init__(self):
-		self.__domain = "http://www.mangareader.net"
+		self.__domain = "http://www.mangahere.com/manga"
 	
 	def getImage(self, image):
 		global logger
@@ -28,24 +30,24 @@ class MangaReaderPlugin(PluginBase.PluginBase):
 		manga = image.chapter.manga
 		chapter = image.chapter
 		
-		url = self.__domain + "/" + self.__getInternalName(manga.name) + "/" + str(chapter.chapterNo) + "/" + str(image.imageNo)
+		url = self.__domain + "/" + self.__getInternalName(manga.name) + "/c" + ("%03d" % chapter.chapterNo) + "/" + str(image.imageNo) + ".html"
 		result = PluginBase.loadURL(url)
 		
 		logger.debug("start parsing")
-		parser = PluginBase.ParserBase(("div", "id", "imgholder"), ("img", "src"))
+		parser = PluginBase.ParserBase(("section", "id", "viewer"), ("img", "src"))
 		parser.feed(result)
 		
 		logger.debug("targetCount = " + str(parser.targetCount))
 		if parser.targetCount < 1:
-			logger.info("No image found in MangaReader site, maybe the chapter is not available.")
+			logger.info("No image found in MangaHere site, maybe the chapter is not available.")
 			return False
 		
 		if parser.targetCount > 1:
-			logger.warning(str(parser.targetCount) + " images found in MangaReader site, maybe the chapter is not available.")
+			logger.warning(str(parser.targetCount) + " images found in MangaHere site, maybe the chapter is not available.")
 			return False
 		
 		if parser.targetValue == "":
-			logger.warning("No valid image url found in MangaReader site.")
+			logger.warning("No valid image url found in MangaHere site.")
 			return False
 		
 		logger.debug("imageURL = " + str(parser.targetValue))

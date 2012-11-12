@@ -12,15 +12,15 @@ import src.PluginBase as PluginBase
 #  logging
 # -------------------------------------------------------------------------------------------------
 
-logger = logging.getLogger('MangaReaderPlugin')
+logger = logging.getLogger('EatMangaPlugin')
 
 # -------------------------------------------------------------------------------------------------
 #  Plugin class
 # -------------------------------------------------------------------------------------------------
-class MangaReaderPlugin(PluginBase.PluginBase):
+class EatMangaPlugin(PluginBase.PluginBase):
 
 	def __init__(self):
-		self.__domain = "http://www.mangareader.net"
+		self.__domain = "http://eatmanga.com/Manga-Scan"
 	
 	def getImage(self, image):
 		global logger
@@ -28,11 +28,12 @@ class MangaReaderPlugin(PluginBase.PluginBase):
 		manga = image.chapter.manga
 		chapter = image.chapter
 		
-		url = self.__domain + "/" + self.__getInternalName(manga.name) + "/" + str(chapter.chapterNo) + "/" + str(image.imageNo)
+		# http://eatmanga.com/Manga-Scan/Hellsing/Hellsing-002/page-2
+		url = self.__domain + "/" + self.__getInternalName(manga.name) + "/" + self.__getInternalName(manga.name) + "-" + ("%03d" % chapter.chapterNo) + "/page-" + str(image.imageNo)
 		result = PluginBase.loadURL(url)
 		
 		logger.debug("start parsing")
-		parser = PluginBase.ParserBase(("div", "id", "imgholder"), ("img", "src"))
+		parser = EatMangaParser()
 		parser.feed(result)
 		
 		logger.debug("targetCount = " + str(parser.targetCount))
@@ -48,6 +49,11 @@ class MangaReaderPlugin(PluginBase.PluginBase):
 			logger.warning("No valid image url found in MangaReader site.")
 			return False
 		
+		# TODO how to find out if the manga/chapter is over? (after a chapter no valid image file is returned)
+		if str(parser.targetValue).endswith("/"):
+			logger.warning("No valid image url found in MangaReader site, maybe the the chapter is over.")
+			return False
+		
 		logger.debug("imageURL = " + str(parser.targetValue))
 		image.imageUrl = parser.targetValue
 		logger.debug("imageUrl found: " + parser.targetValue)
@@ -56,9 +62,59 @@ class MangaReaderPlugin(PluginBase.PluginBase):
 	
 	def __getInternalName(self, name):
 		internalName = name
-		internalName = str.lower(internalName)
-		internalName = str.replace(internalName, " ", "-")
+		# TODO check what to do here
 		return internalName
+
+
+
+class EatMangaParser(HTMLParser):
+	
+	def __init__(self):
+		"""Constructor"""
+		HTMLParser.__init__(self)
+		
+		self.targetValue = ""
+		self.targetCount = 0
+	
+	def handle_starttag(self, tag, attrs):
+		"""Handle HTML start tags"""
+		global logger
+		
+		# TODO use eatmanga_image or eatmanga_image_big?
+		if self.isImageTag(tag, attrs):
+			for attr in attrs:
+				if (attr[0] == "src"):
+					logger.debug("imageURL found")
+					self.targetValue = attr[1]
+					self.targetCount = self.targetCount + 1
+					break
+	
+	def handle_data(self, data):
+		"""Handle HTML data"""
+		pass
+	
+	def handle_endtag(self, tag):
+		"""Handle HTML end tags"""
+		pass
+	
+	def handle_data(self, data):
+		"""Handle HTML data"""
+		pass
+	
+	
+	def isImageTag(self, tag, attrs):
+		global logger
+		
+		if tag == "img":
+			for attr in attrs:
+				if attr[0] == "id":
+					if attr[1] == "eatmanga_image":
+						logger.debug("\"eatmanga_image\" found")
+						return True
+					if attr[1] == "eatmanga_image_big":
+						logger.debug("\"eatmanga_image_big\" found")
+						return True
+		return False
 
 
 
