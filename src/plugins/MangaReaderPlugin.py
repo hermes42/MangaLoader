@@ -17,7 +17,7 @@ logger = logging.getLogger('MangaReader')
 # -------------------------------------------------------------------------------------------------
 #  Module class
 # -------------------------------------------------------------------------------------------------
-class Module():
+class Module(object):
 
 	def __init__(self):
 		self.domain = "http://www.mangareader.net"

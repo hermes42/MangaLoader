@@ -20,7 +20,7 @@ DATA_DIR = os.getenv("HOME") + "/.MangaLoader"
 LOG_FORMAT = "%(asctime)-23s [%(levelname)8s] %(name)-15s %(message)s (%(filename)s:%(lineno)s)"
 LOG_LEVEL = logging.WARNING
 
-class LogHelper:
+class LogHelper(object):
 
 	def __enter__(self):
 		global logger
