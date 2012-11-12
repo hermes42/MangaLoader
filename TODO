@@ -6,6 +6,26 @@ TODO
   - " " => "-" (remove multi "-" occurence)
   - to lower
   - remove "!", "-", "'"
+- implement module for MangaHere (http://www.mangahere.com/manga/hellsing/c009/13.html)
+	<section class="read_img" id="viewer">
+		<a href="http://www.mangahere.com/manga/one_piece/v01/c001/3.html" onclick="return enlarge();">
+		<img src="http://c.mhcdn.net/store/manga/106/01-001.0/compressed/OP_ToC.jpg?v=11192682402" onerror="this.src=\'http://m.mhcdn.net/store/manga/106/01-001.0/compressed/OP_ToC.jpg?v=11192682402\'" width="552" id="image" alt="One Piece 1 Page 2" />
+		</a>
+	</section>
+
+
 - implement threads to load multiple chapters/images
 - write all image data into a file
 - read image data from file and load manga
+
+- improvements and ready for 2to3
+  - "new style" clases e.g. class Blub(object)
+  - add comments
+		class Image():
+			"""Klasse..."""
+			def __init__(self):
+				"""Konstruktor"""
+  - 4 spaces instead of tab
+  - xrange() instead of range()
+  - member variables public, protected and private check ("_", "__"
+  - check with pep8 and pylint

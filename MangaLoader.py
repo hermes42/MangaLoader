@@ -18,7 +18,7 @@ logger = logging.getLogger("MangaLoader")
 
 DATA_DIR = os.getenv("HOME") + "/.MangaLoader"
 LOG_FORMAT = "%(asctime)-23s [%(levelname)8s] %(name)-15s %(message)s (%(filename)s:%(lineno)s)"
-LOG_LEVEL = logging.INFO
+LOG_LEVEL = logging.WARNING
 
 class LogHelper:
 
@@ -167,7 +167,7 @@ with LogHelper() as l:
 	
 	if useRange:
 		logger.info("loading chapters " + str(startChapter) + " - " + str(endChapter))
-		for i in range(startChapter, endChapter+1):
+		for i in xrange(startChapter, endChapter+1):
 			loader.handleChapter(mangaName, i)
 			if doZip:
 				loader.zipChapter(mangaName, i)

@@ -121,7 +121,7 @@ class Loader():
 	
 	def parseManga(self, manga):
 		retValue = False
-		for i in range(1,1000):
+		for i in xrange(1,1000):
 			chapter = Chapter(manga, i)
 			if self.parseChapter(chapter) == False:
 				break
@@ -131,7 +131,7 @@ class Loader():
 	
 	def parseChapter(self, chapter):
 		retValue = False
-		for i in range(1,100):
+		for i in xrange(1,100):
 			image = Image(chapter, i)
 			if self.parseImage(image) == False:
 				break
