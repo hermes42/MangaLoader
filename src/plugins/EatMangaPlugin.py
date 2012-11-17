@@ -29,7 +29,11 @@ class EatMangaPlugin(PluginBase.PluginBase):
 		chapter = image.chapter
 		
 		# http://eatmanga.com/Manga-Scan/Hellsing/Hellsing-002/page-2
-		url = self.__domain + "/" + self.__getInternalName(manga.name) + "/" + self.__getInternalName(manga.name) + "-" + ("%03d" % chapter.chapterNo) + "/page-" + str(image.imageNo)
+		# TODO implementation for last chapter (e.g. /Hellsing-095-END/)
+		if (manga.name == "Hellsing") and (chapter.chapterNo == 95):
+			url = self.__domain + "/" + self.__getInternalName(manga.name) + "/" + self.__getInternalName(manga.name) + "-" + ("%03d" % chapter.chapterNo) + "-END/page-" + str(image.imageNo)
+		else:
+			url = self.__domain + "/" + self.__getInternalName(manga.name) + "/" + self.__getInternalName(manga.name) + "-" + ("%03d" % chapter.chapterNo) + "/page-" + str(image.imageNo)
 		result = PluginBase.loadURL(url)
 		
 		logger.debug("start parsing")
@@ -62,7 +66,7 @@ class EatMangaPlugin(PluginBase.PluginBase):
 	
 	def __getInternalName(self, name):
 		internalName = name
-		# TODO check what to do here
+		internalName = str.replace(internalName, " ", "-")
 		return internalName
 
 
