@@ -112,11 +112,12 @@ class Loader(object):
 		
 		manga = Manga(name)
 		chapter = Chapter(manga, chapterNo)
-		MangaZipper.createZip(self.getChapterDir(chapter), self.getMangaDir(manga))
+		if MangaZipper.createZip(self.getChapterDir(chapter), self.getMangaDir(manga)):
+			logger.info("cbz: \"" + str(chapter) + "\"")
+			print "cbz: \"" + str(chapter) + "\""
+			return True
 		
-		logger.info("cbz: \"" + str(chapter) + "\"")
-		print "cbz: \"" + str(chapter) + "\""
-	
+		return False
 	
 	
 	def parseManga(self, manga):

@@ -31,6 +31,9 @@ class MangaReaderPlugin(PluginBase.PluginBase):
 		url = self.__domain + "/" + self.__getInternalName(manga.name) + "/" + str(chapter.chapterNo) + "/" + str(image.imageNo)
 		result = PluginBase.loadURL(url)
 		
+		if result is None:
+			return False
+		
 		logger.debug("start parsing")
 		parser = PluginBase.ParserBase(("div", "id", "imgholder"), ("img", "src"))
 		parser.feed(result)

@@ -33,6 +33,9 @@ class MangaHerePlugin(PluginBase.PluginBase):
 		url = self.__domain + "/" + self.__getInternalName(manga.name) + "/c" + ("%03d" % chapter.chapterNo) + "/" + str(image.imageNo) + ".html"
 		result = PluginBase.loadURL(url)
 		
+		if result is None:
+			return False
+		
 		logger.debug("start parsing")
 		parser = PluginBase.ParserBase(("section", "id", "viewer"), ("img", "src"))
 		parser.feed(result)

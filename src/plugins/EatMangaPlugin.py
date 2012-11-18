@@ -36,6 +36,9 @@ class EatMangaPlugin(PluginBase.PluginBase):
 			url = self.__domain + "/" + self.__getInternalName(manga.name) + "/" + self.__getInternalName(manga.name) + "-" + ("%03d" % chapter.chapterNo) + "/page-" + str(image.imageNo)
 		result = PluginBase.loadURL(url)
 		
+		if result is None:
+			return False
+		
 		logger.debug("start parsing")
 		parser = EatMangaParser()
 		parser.feed(result)

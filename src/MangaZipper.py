@@ -19,6 +19,9 @@ def createZip(mangaDir, destDir):
 	global logger
 	logger.debug("createZip(" + str(mangaDir) + ", " + str(destDir) + ")")
 	
+	if not os.path.exists(mangaDir):
+		return False
+	
 	name = os.path.basename(os.path.dirname(mangaDir))
 	zipFileName = name + ".cbz"
 	logger.debug("create cbz file \"" + str(zipFileName) + "\"")
@@ -29,6 +32,8 @@ def createZip(mangaDir, destDir):
 		#  fileName, fileExtension = os.path.splitext(f)
 		logger.debug("add file \"" + str(f) + "\" to cbz file \"" + str(zipFileName) + "\"")
 		cbzFile.write(mangaDir + "/" + f, name + "/" + os.path.basename(f).encode("ascii"), zipfile.ZIP_DEFLATED)
+	
+	return True
 
 # -------------------------------------------------------------------------------------------------
 #  <module>
