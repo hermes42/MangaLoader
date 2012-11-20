@@ -132,7 +132,7 @@ class Loader(object):
 	
 	def parseChapter(self, chapter):
 		retValue = False
-		for i in xrange(1,100):
+		for i in xrange(1,1000):
 			image = Image(chapter, i)
 			if self.parseImage(image) == False:
 				break
