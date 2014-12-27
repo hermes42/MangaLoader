@@ -1,6 +1,7 @@
 TODO
 ----
 
+- FEATURE: add plugin for MangaFox
 - BUG: uses wrong Manga image destination names for MangaHere downloads
 - BUG: zipper error, if dir does not exist (e.g. if manga is at the end)
 - MangaReader: internal name
@@ -14,7 +15,6 @@ TODO
 		</a>
 	</section>
 
-
 - implement threads to load multiple chapters/images
 - write all image data into a file
 - read image data from file and load manga
@@ -27,7 +27,5 @@ TODO
 			"""Klasse..."""
 			def __init__(self):
 				"""Konstruktor"""
-  - 4 spaces instead of tab
-  - xrange() instead of range()
   - member variables public, protected and private check ("_", "__"
   - check with pep8 and pylint

@@ -1,10 +1,7 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import urllib
-import urllib2
 import logging
-from HTMLParser import HTMLParser
 
 import src.PluginBase as PluginBase
 
@@ -64,12 +61,8 @@ class MangaReaderPlugin(PluginBase.PluginBase):
 		return internalName
 
 
-
 # -------------------------------------------------------------------------------------------------
 #  <module>
 # -------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
-	print "no test implemented"
-
-
-
+	print("no test implemented")

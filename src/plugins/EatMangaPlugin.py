@@ -1,10 +1,10 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import urllib
-import urllib2
+#import urllib.request, urllib.parse, urllib.error
+#import urllib.request, urllib.error, urllib.parse
 import logging
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 
 import src.PluginBase as PluginBase
 
@@ -129,7 +129,7 @@ class EatMangaParser(HTMLParser):
 #  <module>
 # -------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
-	print "no test implemented"
+	print("no test implemented")
 
 
 

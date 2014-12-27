@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 import os
@@ -118,22 +118,22 @@ with LogHelper() as l:
 	(options, args) = parser.parse_args()
 	
 	if options.version != None:
-		print "MangaLoader v0.1 alpha"
+		print("MangaLoader v0.1 alpha")
 		sys.exit()
 	
 	if options.name is None:
 		logger.error("no manga name specified")
-		print "Missing manga name."
+		print("Missing manga name.")
 		sys.exit()
 	
 	if options.output is None:
 		logger.error("no dest dir specified")
-		print "Missing destination folder."
+		print("Missing destination folder.")
 		sys.exit()
 	
 	if (options.range is None) and (options.image is None):
 		logger.error("neither range nor image option specified")
-		print "Specify at least range of images."
+		print("Specify at least range of images.")
 		sys.exit()
 	
 	pluginCount = 0
@@ -146,11 +146,11 @@ with LogHelper() as l:
 	
 	if  pluginCount <= 0:
 		logger.error("no plugin selected")
-		print "Specify exactly one plugin."
+		print("Specify exactly one plugin.")
 		sys.exit()
 	if  pluginCount > 1:
 		logger.error("multiple plugins selected")
-		print "Specify exactly one plugin."
+		print("Specify exactly one plugin.")
 		sys.exit()
 	
 	logger.debug("options parse done")
@@ -194,7 +194,7 @@ with LogHelper() as l:
 	
 	if useRange:
 		logger.info("loading chapters " + str(startChapter) + " - " + str(endChapter))
-		for i in xrange(startChapter, endChapter+1):
+		for i in range(startChapter, endChapter+1):
 			loader.handleChapter(mangaName, i)
 			if doZip:
 				loader.zipChapter(mangaName, i)
@@ -208,7 +208,7 @@ with LogHelper() as l:
 	end_time = time.time()
 	logger.debug("end time: %.2f s" %(end_time))
 	logger.info("elapsed time: %.2f s" %(end_time - start_time))
-	print "Elapsed Time: %.2f s" %(end_time - start_time)
+	print(("Elapsed Time: %.2f s" %(end_time - start_time)))
 	
 	logger.info("MangaLoader done")
 
