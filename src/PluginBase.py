@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import urllib.request, urllib.parse, urllib.error
-#import urllib.request, urllib.error, urllib.parse
 import logging
 from html.parser import HTMLParser
 
@@ -18,7 +17,23 @@ logger = logging.getLogger('PluginBase')
 class PluginBase():
 
     def getImage(self, image):
-        pass
+        """Gets an image URL for a specific manga from a specific chapter. The
+        URL is stored in the given Image object.
+
+        :return: whether a valid image URL could be found."""
+        raise NotImplementedError()
+
+    def getListOfChapters(self, manga):
+        """Gets a list of all current chapters from a given manga.
+
+        :param manga: identifier for a available manga on this site.
+        :return: list of identifiers for all chapters of this manga currently
+                 available at this site."""
+        raise NotImplementedError()
+
+    def getListOfMangas(self):
+        """Gets the current list of all available mangas from a given site."""
+        raise NotImplementedError()
 
 # -------------------------------------------------------------------------------------------------
 #  Parser class
@@ -43,8 +58,10 @@ class ParserBase(HTMLParser):
         self.__insideOuterTag = False
         self.__outerCount = 0
 
-        self.targetValue = ""
+        self.targetValue = ''
         self.targetCount = 0
+        self.targetValues = list()
+        self.targetData = list()
 
     def handle_starttag(self, tag, attrs):
         """Handle HTML start tags"""
@@ -54,8 +71,11 @@ class ParserBase(HTMLParser):
             self.findInnerTag(tag, attrs)
 
     def handle_data(self, data):
-        """Handle HTML data"""
-        pass
+        """Handles data only inside the given outer tag and stores the data
+        each time in the same variable to be read."""
+        if self.__insideOuterTag:
+            if not data.isspace():
+                self.targetData.append(data)
 
     def handle_endtag(self, tag):
         """Handle HTML end tags"""
@@ -95,6 +115,7 @@ class ParserBase(HTMLParser):
                     if attr[0] == self.__innerAttrib:
                         logger.debug("inner value found")
                         self.targetValue = attr[1]
+                        self.targetValues.append(attr[1])
                         self.targetCount = self.targetCount + 1
                         break
 

@@ -49,12 +49,18 @@ class LogHelper(object):
 		self.fd.close()
 
 
+
+from src.plugins import MangaFoxPlugin
+m = MangaFoxPlugin.MangaFoxPlugin()
+m.getListOfMangas()
+exit()
+
 # -------------------------------------------------------------------------------------------------
 #  <module>
 # -------------------------------------------------------------------------------------------------
 
 # test with:
-#  python MangaLoader.py -m -n Claymore -r 14 20 -o /home/markus/Desktop/New Mangas
+#  python MangaLoader.py --MangaReader -n Claymore -r 14 20 -o /home/markus/Desktop/New Mangas
 
 with LogHelper() as l:
 	

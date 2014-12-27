@@ -15,6 +15,9 @@ from . import MangaZipper
 
 logger = logging.getLogger('MangaBase')
 
+MAX_DOWNLOAD_WORKER = 2
+
+
 # -------------------------------------------------------------------------------------------------
 #  Manga class
 # -------------------------------------------------------------------------------------------------
@@ -23,6 +26,7 @@ class Manga(object):
     def __init__(self, name):
         self.name = name
         self.chapterList = []
+        self.manga_url = ''
 
     def __str__(self):
         return str(self.name)
@@ -81,7 +85,7 @@ class Loader(object):
 
     def handleChapter(self, name, chapterNo):
         global logger
-        logger.debug("handleChapter(" + str(name) + ", " + str(chapterNo) + ")")
+        logger.debug('handleChapter(' + str(name) + ', ' + str(chapterNo) + ')')
         chapter = Chapter(Manga(name), chapterNo)
 
         if self.parseChapter(chapter) == False:
@@ -94,7 +98,7 @@ class Loader(object):
 
     def handleImage(self, name, chapterNo, imageNo):
         global logger
-        logger.debug("handleChapter(" + str(name) + ", " + str(chapterNo) + ", " + str(imageNo) + ")")
+        logger.debug('handleChapter(' + str(name) + ', ' + str(chapterNo) + ', ' + str(imageNo) + ')')
         image = Image(Chapter(Manga(name), chapterNo), imageNo)
 
         if self.parseImage(image) == False:
@@ -107,13 +111,13 @@ class Loader(object):
 
     def zipChapter(self, name, chapterNo):
         global logger
-        logger.debug("zipChapter(" + str(name) + ", " + str(chapterNo) + ")")
+        logger.debug('zipChapter(' + str(name) + ', ' + str(chapterNo) + ')')
 
         manga = Manga(name)
         chapter = Chapter(manga, chapterNo)
         if MangaZipper.createZip(self.getChapterDir(chapter), self.getMangaDir(manga)):
-            logger.info("cbz: \"" + str(chapter) + "\"")
-            print("cbz: \"" + str(chapter) + "\"")
+            logger.info('cbz: \"' + str(chapter) + '\"')
+            print('cbz: \"' + str(chapter) + '\"')
             return True
 
         return False
@@ -147,8 +151,8 @@ class Loader(object):
         if self.loaderPlugin.getImage(image) == False:
             return False
 
-        logger.info("parse: \"" + str(image) + "\"")
-        print("parse: \"" + str(image) + "\"")
+        logger.info('parse: "' + str(image) + '"')
+        print('parse: "' + str(image) + '"')
         return True
 
     def loadManga(self, manga):
@@ -159,7 +163,7 @@ class Loader(object):
 
     def loadChapter(self, chapter):
         list_of_futures = list()
-        with ThreadPoolExecutor(max_workers=5) as executor:
+        with ThreadPoolExecutor(max_workers=MAX_DOWNLOAD_WORKER) as executor:
             for image in chapter.imageList:
                 f = executor.submit(self.loadImage, image)
                 list_of_futures.append(f)
@@ -172,8 +176,8 @@ class Loader(object):
         if self.loadFile(image.imageUrl, self.getImagePath(image)) == False:
             return False
 
-        logger.info("load: \"" + str(image) + "\"")
-        print("load: \"" + str(image) + "\"")
+        logger.info('load: "' + str(image) + '"')
+        print('load: "' + str(image) + '"')
         return True
 
 
@@ -206,9 +210,9 @@ class Loader(object):
                 out.close()
                 return True
             except urllib.error.URLError:
-                logger.warning("failed to load \"" + str(source) +"\" (" + tryCounter + ")")
+                logger.warning('failed to load "' + str(source) + '" (' + tryCounter + ')')
                 if tryCounter >= 5:
-                    logger.error("failed to load \"" + str(source) +"\"")
+                    logger.error('failed to load "' + str(source) + '"')
                     return False
             tryCounter = tryCounter + 1
 
@@ -218,5 +222,5 @@ class Loader(object):
 # -------------------------------------------------------------------------------------------------
 #  <module>
 # -------------------------------------------------------------------------------------------------
-if __name__ == "__main__":
-    print("no test implemented")
+if __name__ == '__main__':
+    print('no test implemented')
