@@ -12,7 +12,7 @@ import src.PluginBase as PluginBase
 #  logging
 # -------------------------------------------------------------------------------------------------
 
-logger = logging.getLogger('EatMangaPlugin')
+logger = logging.getLogger('MangaLoader.EatMangaPlugin')
 
 # -------------------------------------------------------------------------------------------------
 #  Plugin class

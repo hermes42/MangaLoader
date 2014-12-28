@@ -9,7 +9,7 @@ import logging
 #  logging
 # -------------------------------------------------------------------------------------------------
 
-logger = logging.getLogger('MangaZipper')
+logger = logging.getLogger('MangaLoader.MangaZipper')
 
 # -------------------------------------------------------------------------------------------------
 #  zipper functions

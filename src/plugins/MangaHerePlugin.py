@@ -12,7 +12,7 @@ import src.PluginBase as PluginBase
 #  logging
 # -------------------------------------------------------------------------------------------------
 
-logger = logging.getLogger('MangaHerePlugin')
+logger = logging.getLogger('MangaLoader.MangaHerePlugin')
 
 # TODO implement volume support (e.g. http://www.mangahere.com/manga/naruto/v60/c600/ - volume 60)
 

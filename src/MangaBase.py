@@ -13,7 +13,7 @@ from . import MangaZipper
 #  logging
 # -------------------------------------------------------------------------------------------------
 
-logger = logging.getLogger('MangaBase')
+logger = logging.getLogger('MangaLoader.MangaBase')
 
 MAX_DOWNLOAD_WORKER = 2
 
@@ -44,6 +44,8 @@ class Chapter(object):
     def __init__(self, manga, chapterNo):
         self.manga = manga
         self.chapterNo = chapterNo
+        self.chapterTitle = ''
+        self.chapterURL = ''
         self.imageList = []
 
     def __str__(self):

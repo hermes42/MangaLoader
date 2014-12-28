@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import urllib.request, urllib.parse, urllib.error
+import re
 import logging
 from html.parser import HTMLParser
 
@@ -9,7 +10,7 @@ from html.parser import HTMLParser
 #  logging
 # -------------------------------------------------------------------------------------------------
 
-logger = logging.getLogger('PluginBase')
+logger = logging.getLogger('MangaLoader.PluginBase')
 
 # -------------------------------------------------------------------------------------------------
 #  Parser class
@@ -87,11 +88,17 @@ class ParserBase(HTMLParser):
         global logger
 
         if tag == self.__outerTag:
-            for attr in attrs:
-                if (attr[0] == self.__outerAttrib) and (attr[1] == self.__outerValue):
-                    logger.debug("outer tag start")
-                    self.__insideOuterTag = True
-                    break
+            # check attribute and its value only when they have been given...
+            if self.__outerAttrib and self.__outerValue:
+                for attr in attrs:
+                    if (attr[0] == self.__outerAttrib) and (attr[1] == self.__outerValue):
+                        logger.debug("outer tag start")
+                        self.__insideOuterTag = True
+                        break
+            # ...otherwise just do it!
+            else:
+                logger.debug("outer tag start")
+                self.__insideOuterTag = True
 
     def increaseOuterCount(self, tag):
         """Increases the current level of outer tags inside the outer tag."""
@@ -118,6 +125,22 @@ class ParserBase(HTMLParser):
                         self.targetValues.append(attr[1])
                         self.targetCount = self.targetCount + 1
                         break
+
+
+# -------------------------------------------------------------------------------------------------
+#  loadURL
+# -------------------------------------------------------------------------------------------------
+def find_re_in_site(url, regex):
+    """Opens a site, downloads its content and check with a regular expression
+    whether any matching string can be found.
+    
+    :param url: site URL to be scanned for matching strings
+    :param regex: regular expression to be searched for
+    """
+    site = urllib.request.urlopen(url)
+    content = site.read().decode(site.headers.get_content_charset())
+    list = re.findall(regex, content)
+    return list
 
 
 # -------------------------------------------------------------------------------------------------

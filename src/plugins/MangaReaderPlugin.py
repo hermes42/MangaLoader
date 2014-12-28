@@ -9,7 +9,7 @@ import src.PluginBase as PluginBase
 #  logging
 # -------------------------------------------------------------------------------------------------
 
-logger = logging.getLogger('MangaReaderPlugin')
+logger = logging.getLogger('MangaLoader.MangaReaderPlugin')
 
 # -------------------------------------------------------------------------------------------------
 #  Plugin class
