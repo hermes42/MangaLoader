@@ -26,7 +26,7 @@ class Manga(object):
     def __init__(self, name):
         self.name = name
         self.chapterList = []
-        self.manga_url = ''
+        self.mangaURL = ''
 
     def __str__(self):
         return str(self.name)

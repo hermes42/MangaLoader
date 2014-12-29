@@ -15,7 +15,7 @@ logger = logging.getLogger('MangaLoader.PluginBase')
 # -------------------------------------------------------------------------------------------------
 #  Parser class
 # -------------------------------------------------------------------------------------------------
-class PluginBase():
+class PluginBase(object):
 
     def getImage(self, image):
         """Gets an image URL for a specific manga from a specific chapter. The
@@ -40,11 +40,16 @@ class PluginBase():
 #  Parser class
 # -------------------------------------------------------------------------------------------------
 class ParserBase(HTMLParser):
+    """Parses a given HTML site and seaches for a specified attribute of a
+    given tag inside another specified tag. The outer tag is defined by tag
+    name and attribute with its value.
 
-    # TODO extend to a list of (tags, attrib, value) tupel, to find a specific value? [("div", "id", "imgholder"), ("img", "src", xxx)]
+    TODO: Extend to a list of (tags, attrib, value) tupel, to find a specific
+    value? [("div", "id", "imgholder"), ("img", "src", xxx)]
+    """
 
     def __init__(self, outer, inner):
-        """Constructor"""
+        """Sets all internal variables."""
         HTMLParser.__init__(self)
 
         (outerTag, outerAttrib, outerValue) = outer
@@ -65,7 +70,8 @@ class ParserBase(HTMLParser):
         self.targetData = list()
 
     def handle_starttag(self, tag, attrs):
-        """Handle HTML start tags"""
+        """Searches for the outer tag and looks for the begin of the inner tag
+        when inside the outer tag."""
         self.findOuterTagStart(tag, attrs)
         if self.__insideOuterTag:
             self.increaseOuterCount(tag)
@@ -79,7 +85,7 @@ class ParserBase(HTMLParser):
                 self.targetData.append(data)
 
     def handle_endtag(self, tag):
-        """Handle HTML end tags"""
+        """Decreases inner tag count when end tag was reached."""
         if self.__insideOuterTag:
             self.decreaseOuterCount(tag)
 
@@ -106,7 +112,8 @@ class ParserBase(HTMLParser):
             self.__outerCount = self.__outerCount + 1
 
     def decreaseOuterCount(self, tag):
-        """Decreases the current level of outer tags inside the outer tag. If the count reaches zero, this is the outer end tag."""
+        """Decreases the current level of outer tags inside the outer tag. If
+        the count reaches zero, this is the outer end tag."""
         if tag == self.__outerTag:
             self.__outerCount = self.__outerCount - 1
         if self.__outerCount == 0:
@@ -139,8 +146,8 @@ def find_re_in_site(url, regex):
     """
     site = urllib.request.urlopen(url)
     content = site.read().decode(site.headers.get_content_charset())
-    list = re.findall(regex, content)
-    return list
+    result_list = re.findall(regex, content)
+    return result_list
 
 
 # -------------------------------------------------------------------------------------------------
@@ -154,7 +161,8 @@ def loadURL(url, maxTryCount=5):
 
         logger.debug("start loading URL \"" + str(url) + "\"")
         try:
-            headers = { "User-Agent" : "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0" }
+            agent_string = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0"
+            headers = { "User-Agent" : agent_string }
             request = urllib.request.Request(url, None, headers)
 
             response = urllib.request.urlopen(request)
