@@ -56,3 +56,4 @@ docs/_build/
 #####
 # Project specific
 .idea
+*.data

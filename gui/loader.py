@@ -21,7 +21,7 @@ from src import MangaBase
 logger = logging.getLogger('MangaLoader.gui')
 
 
-MANGA_LIST_FILE = 'manga_list.pickle'
+MANGA_LIST_FILE = 'manga_list.data'
 
 
 class LoaderWindow(QtGui.QWidget):
