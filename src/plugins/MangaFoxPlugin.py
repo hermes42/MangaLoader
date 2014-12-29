@@ -25,11 +25,9 @@ class MangaFoxPlugin(PluginBase.PluginBase):
     def __init__(self):
         self.__domain = BASE_URL
         self.__list_of_found_chapter_URLs = {}
+        self.__last_found_image_URL = ''
 
     def getImage(self, image):
-        #global logger
-        #manga = image.chapter.manga
-        #chapter = image.chapter
         # get url for chapter and fix it for given image number
         # (http://mangafox.me/manga/coppelion/v19/c185/1.html)
         if image.chapter.chapterURL:
@@ -41,7 +39,7 @@ class MangaFoxPlugin(PluginBase.PluginBase):
         if result is None:
             return False
 
-        logger.debug('start parsing')
+        logger.debug('Start parsing...')
         parser = PluginBase.ParserBase(('div', 'id', 'viewer'), ('img', 'src'))
         parser.feed(result)
 
@@ -58,9 +56,17 @@ class MangaFoxPlugin(PluginBase.PluginBase):
             logger.warning('No valid image url found in MangaReader site.')
             return False
 
-        logger.debug('imageURL = {}'.format(parser.targetValue))
+        # check if this time the same URL was found as last time, because
+        # MangaFox shows last image of chapter when the given image number is
+        # too high
+        # TODO: Fix this by determine how many chapters there are!
+        if self.__last_found_image_URL == parser.targetValue:
+            return False
+
         image.imageUrl = parser.targetValue
+        self.__last_found_image_URL = parser.targetValue
         logger.debug('imageUrl found: {}'.format(parser.targetValue))
+
         return True
 
     def getListOfChapters(self, manga):

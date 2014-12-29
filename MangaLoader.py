@@ -53,9 +53,9 @@ def create_logger():
 
 def parse_and_load():
 
-    """
-    specify options and parse arguments
-    """
+    #####
+    # Specify options and parse arguments.
+    #####
 
     logger.info('MangaLoader started')
 
@@ -152,9 +152,9 @@ def parse_and_load():
     logger.debug('options parse done')
 
 
-    """
-    start actual manga load with specified parameter & arguments
-    """
+    #####
+    # Start actual manga load with specified parameter & arguments.
+    #####
 
     start_time = time.time()
     logger.debug('start time: %.2f s' %(start_time))

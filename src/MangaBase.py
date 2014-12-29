@@ -85,7 +85,6 @@ class Loader(object):
         self.destDir = destDir
 
     def handleChapter(self, name, chapterNo):
-        global logger
         logger.debug('handleChapter({}, {})'.format(str(name), str(chapterNo)))
         chapter = Chapter(Manga(name), chapterNo)
 
@@ -98,29 +97,23 @@ class Loader(object):
         return True
 
     def handleImage(self, name, chapterNo, imageNo):
-        global logger
         logger.debug('handleChapter({}, {}, {})'.format(str(name), str(chapterNo), str(imageNo)))
         image = Image(Chapter(Manga(name), chapterNo), imageNo)
 
         if self.parseImage(image) == False:
             return False
-
         if self.loadImage(image) == False:
             return False
-
         return True
 
     def zipChapter(self, name, chapterNo):
-        global logger
         logger.debug('zipChapter({}, {})'.format(str(name), str(chapterNo)))
-
         manga = Manga(name)
         chapter = Chapter(manga, chapterNo)
         if MangaZipper.createZip(self.getChapterDir(chapter), self.getMangaDir(manga)):
             logger.info('cbz: "' + str(chapter) + '"')
             print('cbz: "' + str(chapter) + '"')
             return True
-
         return False
 
 
@@ -145,8 +138,6 @@ class Loader(object):
         return retValue
 
     def parseImage(self, image):
-        global logger
-
         if self.loaderPlugin == None:
             return False
         if self.loaderPlugin.getImage(image) == False:
@@ -171,12 +162,9 @@ class Loader(object):
         return all(list_of_futures)
 
     def loadImage(self, image):
-        global logger
-
-        # calculate destination path and call loadFile
-        if self.loadFile(image.imageUrl, self.getImagePath(image)) == False:
+        # calculate destination path and call storeFileOnDisk()
+        if self.storeFileOnDisk(image.imageUrl, self.getImagePath(image)) == False:
             return False
-
         logger.info('load: "' + str(image) + '"')
         print('load: "' + str(image) + '"')
         return True
@@ -191,15 +179,12 @@ class Loader(object):
     def getImagePath(self, image):
         return Template(self.getChapterDir(image.chapter) + '${ImageNo}.${Ext}').substitute(ImageNo=str(image.imageNo).rjust(2, '0'), Ext=image.imageUrl[image.imageUrl.rfind('.') + 1 : len(image.imageUrl)])
 
-    def loadFile(self, source, dest):
-        global logger
-
+    def storeFileOnDisk(self, source, dest):
         # create directories first
         try:
             os.makedirs(dest[0 : dest.rfind('/')])
         except OSError:
             pass
-
         # open source url and copy to destination file
         # retry 5 times
         tryCounter = 1
@@ -216,7 +201,6 @@ class Loader(object):
                     logger.error('failed to load "' + str(source) + '"')
                     return False
             tryCounter = tryCounter + 1
-
         return False
 
 
