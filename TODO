@@ -4,6 +4,7 @@ TODO
 - FEATURE: add plugin for MangaFox
 - BUG: uses wrong Manga image destination names for MangaHere downloads
 - BUG: zipper error, if dir does not exist (e.g. if manga is at the end)
+- Remove encodings declaration (not necessary on Python 3)
 - MangaReader: internal name
   - " " => "-" (remove multi "-" occurence)
   - to lower
