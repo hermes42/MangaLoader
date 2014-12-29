@@ -20,7 +20,7 @@ class PluginBase(object):
         """Gets an image URL for a specific manga from a specific chapter. The
         URL is stored in the given Image object.
 
-        :return: whether a valid image URL could be found."""
+        :return: true, when a valid image URL for wanted image could be found"""
         raise NotImplementedError()
 
     def getListOfChapters(self, manga):

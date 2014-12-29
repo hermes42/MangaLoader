@@ -215,18 +215,7 @@ if __name__ == '__main__':
     global logger
     logger = create_logger()
     logger.info('Starting {}...'.format(APP_NAME))
-    
-    parse_and_load()
-    
-    #from src.plugins import MangaFoxPlugin
-    #from src.MangaBase import Image
-    #m = MangaFoxPlugin.MangaFoxPlugin()
-    #x = m.getListOfMangas()
-    #for i in x:
-    #    if i.name == 'Coppelion':
-    #        c = m.getListOfChapters(i)
-    #n = MangaBase.Manga('Coppelion')
-    #n.manga_url = 'http://mangafox.me/manga/coppelion/'
-    #c = m.getListOfChapters(n)
-    #i = Image(c[14], 4)
-    #m.getImage(i)
+    try:
+        parse_and_load()
+    except KeyboardInterrupt:
+        logger.warn('Quit program!')

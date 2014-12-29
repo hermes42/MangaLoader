@@ -35,6 +35,11 @@ class MangaFoxPlugin(PluginBase.PluginBase):
         else:
             chapterURL = self.__find_URL_for_chapter(image.chapter)
         url = chapterURL.replace('1.html', '{}.html'.format(image.imageNo))
+        
+        if not url:
+            logger.warning('Could not find wanted image. ')
+            return False
+            
         result = PluginBase.loadURL(url)
         if result is None:
             return False
