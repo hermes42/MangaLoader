@@ -15,6 +15,7 @@ from PyQt4 import QtGui
 from PyQt4 import QtCore
 
 from src.plugins import MangaFoxPlugin
+from src import MangaBase
 
 
 logger = logging.getLogger('MangaLoader.gui')
@@ -31,6 +32,7 @@ class LoaderWindow(QtGui.QWidget):
         self.manga_store_path = os.getcwd()
         self.plugin = MangaFoxPlugin.MangaFoxPlugin()
         self.manga_list = []
+        self.chapter_count = 1
         self.create_fonts()
         self.setup_ui()
         self.set_signals_and_slots()
@@ -68,8 +70,8 @@ class LoaderWindow(QtGui.QWidget):
         self.directory_button = QtGui.QPushButton(self.manga_store_path)
         grid.addWidget(self.directory_button, 2, 1, 1, 3)
         # add progressbar
-        pb = QtGui.QProgressBar()
-        grid.addWidget(pb, 3, 0, 1, 4)
+        self.loader_progress = QtGui.QProgressBar()
+        grid.addWidget(self.loader_progress, 3, 0, 1, 4)
         # add load button
         self.load_button = QtGui.QPushButton('Load...')
         grid.addWidget(self.load_button, 5, 0, QtCore.Qt.AlignLeft)
@@ -127,7 +129,23 @@ class LoaderWindow(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def on_load_manga(self):
-        pass
+        logger.info('Loading Loader...')
+        loader = MangaBase.Loader(self.plugin, self.manga_store_path)
+        startChapter = self.chapter_begin.value()
+        endChapter = self.chapter_end.value()
+        self.chapter_count = endChapter - startChapter
+        logger.info('Loading chapters {} - {}'.format(str(startChapter), str(endChapter)))
+        self.loader_progress.setRange(startChapter - 1, endChapter)
+        self.loader_progress.setValue(startChapter - 1)
+        # enforce event processing
+        QtGui.QApplication.processEvents()
+        for i in range(startChapter, endChapter + 1):
+            loader.handleChapter(self.mangaComboBox.currentText(), i)
+            self.loader_progress.setValue(i)
+            # enforce event processing
+            QtGui.QApplication.processEvents()
+            #if doZip:
+            #    loader.zipChapter(mangaName, i)
 
     @QtCore.pyqtSlot()
     def on_update_chapter_fields(self):
