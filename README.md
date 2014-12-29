@@ -14,9 +14,13 @@ MangaLoader is released under the GNU General Public License v2 or newer
 USAGE
 -----
 
-Usage: MangaLoader.py [options]
+Usage:
+```
+  MangaLoader.py [options]
+```
 
 Options:
+```
   -h, --help         show this help message and exit
   --version          show version information
   -m, --MangaReader  use MangaReader module
@@ -25,7 +29,7 @@ Options:
   -r FROM TO         load a range of chapters
   -i CHAPTER IMAGE   load a single image (chapterNo, imageNo)
   -o DEST_DIR        destination directory
-
+```
 
 REQUIREMENTS
 ------------
