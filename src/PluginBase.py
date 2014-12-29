@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
 
 import urllib.request, urllib.parse, urllib.error
 import re
@@ -98,12 +97,12 @@ class ParserBase(HTMLParser):
             if self.__outerAttrib and self.__outerValue:
                 for attr in attrs:
                     if (attr[0] == self.__outerAttrib) and (attr[1] == self.__outerValue):
-                        logger.debug("outer tag start")
+                        logger.debug('outer tag start')
                         self.__insideOuterTag = True
                         break
             # ...otherwise just do it!
             else:
-                logger.debug("outer tag start")
+                logger.debug('outer tag start')
                 self.__insideOuterTag = True
 
     def increaseOuterCount(self, tag):
@@ -117,7 +116,7 @@ class ParserBase(HTMLParser):
         if tag == self.__outerTag:
             self.__outerCount = self.__outerCount - 1
         if self.__outerCount == 0:
-            logger.debug("outer tag end")
+            logger.debug('outer tag end')
             self.__insideOuterTag = False
 
     def findInnerTag(self, tag, attrs):
@@ -127,7 +126,7 @@ class ParserBase(HTMLParser):
             if tag == self.__innerTag:
                 for attr in attrs:
                     if attr[0] == self.__innerAttrib:
-                        logger.debug("inner value found")
+                        logger.debug('inner value found')
                         self.targetValue = attr[1]
                         self.targetValues.append(attr[1])
                         self.targetCount = self.targetCount + 1
@@ -159,20 +158,23 @@ def loadURL(url, maxTryCount=5):
     tryCounter = 1
     while True:
 
-        logger.debug("start loading URL \"" + str(url) + "\"")
+        logger.debug('Start loading URL "{}".'.format(str(url)))
         try:
-            agent_string = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0"
-            headers = { "User-Agent" : agent_string }
+            agent_string = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:34.0) Gecko/20100101 Firefox/34.0'
+            #'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'
+            #'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+            #'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0'
+            headers = { 'User-Agent' : agent_string }
             request = urllib.request.Request(url, None, headers)
 
             response = urllib.request.urlopen(request)
             # read from URL and decode according to HTTP header info
             result = response.read().decode(response.headers.get_content_charset())
 
-            logger.debug("URL successfully loaded")
+            logger.debug('URL successfully loaded.')
             return result
         except urllib.error.URLError as e:
-            logger.debug("URLError: " + str(e))
+            logger.debug('URLError: {}.'.format(str(e)))
             if tryCounter >= maxTryCount:
                 return None
         tryCounter = tryCounter + 1
@@ -183,5 +185,5 @@ def loadURL(url, maxTryCount=5):
 # -------------------------------------------------------------------------------------------------
 #  <module>
 # -------------------------------------------------------------------------------------------------
-if __name__ == "__main__":
-    print("no test implemented")
+if __name__ == '__main__':
+    print('No test implemented!')

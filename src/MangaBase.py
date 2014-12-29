@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
 
 import os
 import urllib.request, urllib.error, urllib.parse
@@ -50,7 +49,7 @@ class Chapter(object):
 
     def __str__(self):
         if self.manga != None:
-            return str(self.manga) + " " + str(self.chapterNo)
+            return str(self.manga) + ' ' + str(self.chapterNo)
         else:
             return str(self.chapterNo)
 
@@ -71,7 +70,7 @@ class Image(object):
 
     def __str__(self):
         if self.chapter != None:
-            return str(self.chapter) + " - " + str(self.imageNo)
+            return str(self.chapter) + ' - ' + str(self.imageNo)
         else:
             return str(self.imageNo)
 
@@ -87,7 +86,7 @@ class Loader(object):
 
     def handleChapter(self, name, chapterNo):
         global logger
-        logger.debug('handleChapter(' + str(name) + ', ' + str(chapterNo) + ')')
+        logger.debug('handleChapter({}, {})'.format(str(name), str(chapterNo)))
         chapter = Chapter(Manga(name), chapterNo)
 
         if self.parseChapter(chapter) == False:
@@ -100,7 +99,7 @@ class Loader(object):
 
     def handleImage(self, name, chapterNo, imageNo):
         global logger
-        logger.debug('handleChapter(' + str(name) + ', ' + str(chapterNo) + ', ' + str(imageNo) + ')')
+        logger.debug('handleChapter({}, {}, {})'.format(str(name), str(chapterNo), str(imageNo)))
         image = Image(Chapter(Manga(name), chapterNo), imageNo)
 
         if self.parseImage(image) == False:
@@ -113,13 +112,13 @@ class Loader(object):
 
     def zipChapter(self, name, chapterNo):
         global logger
-        logger.debug('zipChapter(' + str(name) + ', ' + str(chapterNo) + ')')
+        logger.debug('zipChapter({}, {})'.format(str(name), str(chapterNo)))
 
         manga = Manga(name)
         chapter = Chapter(manga, chapterNo)
         if MangaZipper.createZip(self.getChapterDir(chapter), self.getMangaDir(manga)):
-            logger.info('cbz: \"' + str(chapter) + '\"')
-            print('cbz: \"' + str(chapter) + '\"')
+            logger.info('cbz: "' + str(chapter) + '"')
+            print('cbz: "' + str(chapter) + '"')
             return True
 
         return False
@@ -225,4 +224,4 @@ class Loader(object):
 #  <module>
 # -------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    print('no test implemented')
+    print('No test implemented!')
