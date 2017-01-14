@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
+import re
 import logging
+from PIL import Image
 
 import src.PluginBase as PluginBase
 from src.PluginBase import find_re_in_site
@@ -35,30 +37,30 @@ class MangaFoxPlugin(PluginBase.PluginBase):
         else:
             chapterURL = self.__find_URL_for_chapter(image.chapter)
         url = chapterURL.replace('1.html', '{}.html'.format(image.imageNo))
-        
+
         if not url:
             logger.warning('Could not find wanted image. ')
             return False
-            
+
         result = PluginBase.loadURL(url)
         if result is None:
             return False
 
         logger.debug('Start parsing...')
-        parser = PluginBase.ParserBase(('div', 'id', 'viewer'), ('img', 'src'))
+        parser = PluginBase.ParserBase(('div', 'class', 'read_img'), ('img', 'src'))
         parser.feed(result)
 
         logger.debug('targetCount = ' + str(parser.targetCount))
         if parser.targetCount < 1:
-            logger.info('No image found in MangaReader site, maybe the chapter is not available.')
+            logger.info('No image found in MangaFox site, maybe the chapter is not available.')
             return False
 
         if parser.targetCount > 1:
-            logger.warning('{} images found in MangaReader site, maybe the chapter is not available.'.format(parser.targetCount))
+            logger.warning('{} images found in MangaFox site, maybe the chapter is not available.'.format(parser.targetCount))
             return False
 
         if parser.targetValue == '':
-            logger.warning('No valid image url found in MangaReader site.')
+            logger.warning('No valid image url found in MangaFox site.')
             return False
 
         # check if this time the same URL was found as last time, because
@@ -92,7 +94,6 @@ class MangaFoxPlugin(PluginBase.PluginBase):
         logger.info('Found {} chapters.'.format(len(link_list)))
         list_of_chapters = []
         for link, name in link_list:
-            import re
             number = int(re.findall('\d+$', name)[0])
             chapter = Chapter(manga.name, number)
             chapter.chapterURL = link
@@ -132,7 +133,7 @@ class MangaFoxPlugin(PluginBase.PluginBase):
         url = '/'.join((self.__domain, 'manga'))
         result = PluginBase.loadURL(url)
         if result is None:
-            return False
+            return ()
         print('Finding mangas...')
         logger.debug('Finding mangas...')
         parser = PluginBase.ParserBase(('div', 'class', 'manga_list'), ('a', 'href'))
@@ -149,6 +150,12 @@ class MangaFoxPlugin(PluginBase.PluginBase):
         else:
             logger.warning('No mangas found on site.')
         return list_of_all_mangas
+
+    def postprocessImage(self, filename):
+        logger.debug('Cropping image file to delete ads.')
+        #image = Image.open(filename)
+        #w, h = image.size
+        #image.crop((0, 0, w, h-30)).save(filename)
 
     def __getInternalName(self, name):
         internalName = name

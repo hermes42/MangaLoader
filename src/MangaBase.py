@@ -26,6 +26,7 @@ class Manga(object):
         self.name = name
         self.chapterList = []
         self.mangaURL = ''
+        self.internalName = ''
 
     def __str__(self):
         return str(self.name)
@@ -84,22 +85,26 @@ class Loader(object):
         self.loaderPlugin = loaderPlugin
         self.destDir = destDir
 
+    def handleChapter2(self, chapter):
+        logger.debug('handleChapter({})'.format(str(chapter)))
+        if self.parseChapter(chapter) == False:
+            return False
+        if self.loadChapter(chapter) == False:
+            return False
+        return True
+
     def handleChapter(self, name, chapterNo):
         logger.debug('handleChapter({}, {})'.format(str(name), str(chapterNo)))
         chapter = Chapter(Manga(name), chapterNo)
-
         if self.parseChapter(chapter) == False:
             return False
-
         if self.loadChapter(chapter) == False:
             return False
-
         return True
 
     def handleImage(self, name, chapterNo, imageNo):
         logger.debug('handleChapter({}, {}, {})'.format(str(name), str(chapterNo), str(imageNo)))
         image = Image(Chapter(Manga(name), chapterNo), imageNo)
-
         if self.parseImage(image) == False:
             return False
         if self.loadImage(image) == False:
@@ -116,10 +121,10 @@ class Loader(object):
             return True
         return False
 
-
     def parseManga(self, manga):
         retValue = False
-        for i in range(1,1000):
+        # FIXME Do NOT use maximum number of chapters because "One Piece" :-)
+        for i in range(1, 1000):
             chapter = Chapter(manga, i)
             if self.parseChapter(chapter) == False:
                 break
@@ -194,6 +199,7 @@ class Loader(object):
                 out = open(dest,'wb')
                 out.write(f.read())
                 out.close()
+                self.loaderPlugin.postprocessImage(dest)
                 return True
             except urllib.error.URLError:
                 logger.warning('failed to load "' + str(source) + '" (' + tryCounter + ')')

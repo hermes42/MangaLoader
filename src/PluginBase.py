@@ -3,6 +3,7 @@
 import urllib.request, urllib.parse, urllib.error
 import re
 import logging
+import requests
 from html.parser import HTMLParser
 
 # -------------------------------------------------------------------------------------------------
@@ -34,6 +35,11 @@ class PluginBase(object):
     def getListOfMangas(self):
         """Gets the current list of all available mangas from a given site."""
         raise NotImplementedError()
+
+    def postprocessImage(self, filename):
+        """Processes the loaded image of a manga page after it has been down-
+        loaded."""
+        pass
 
 # -------------------------------------------------------------------------------------------------
 #  Parser class
@@ -97,12 +103,10 @@ class ParserBase(HTMLParser):
             if self.__outerAttrib and self.__outerValue:
                 for attr in attrs:
                     if (attr[0] == self.__outerAttrib) and (attr[1] == self.__outerValue):
-                        logger.debug('outer tag start')
                         self.__insideOuterTag = True
                         break
             # ...otherwise just do it!
             else:
-                logger.debug('outer tag start')
                 self.__insideOuterTag = True
 
     def increaseOuterCount(self, tag):
@@ -116,7 +120,6 @@ class ParserBase(HTMLParser):
         if tag == self.__outerTag:
             self.__outerCount = self.__outerCount - 1
         if self.__outerCount == 0:
-            logger.debug('outer tag end')
             self.__insideOuterTag = False
 
     def findInnerTag(self, tag, attrs):
@@ -126,7 +129,6 @@ class ParserBase(HTMLParser):
             if tag == self.__innerTag:
                 for attr in attrs:
                     if attr[0] == self.__innerAttrib:
-                        logger.debug('inner value found')
                         self.targetValue = attr[1]
                         self.targetValues.append(attr[1])
                         self.targetCount = self.targetCount + 1
@@ -134,12 +136,43 @@ class ParserBase(HTMLParser):
 
 
 # -------------------------------------------------------------------------------------------------
+#  FindTagParser
+# -------------------------------------------------------------------------------------------------
+class FindTagParser(HTMLParser):
+    """Finds a tag with a given attribute and its value."""
+
+    def __init__(self, tag, attribute, value, result_tag):
+        """Sets all internal variables."""
+        HTMLParser.__init__(self)
+        self.tag = tag
+        self.attribute = attribute
+        self.value = value
+        self.result_tag = result_tag
+        self.targetCount = 0
+        self.targetValue = ''
+
+    def handle_starttag(self, tag, attrs):
+        if tag == self.tag:
+            correct_tag = False
+            for attribute in attrs:
+                # check if attribute is correct
+                if attribute[0] == self.attribute and attribute[1] == self.value:
+                    correct_tag = True
+            if correct_tag:
+                # extract wanted information only when correct tag was found
+                for attribute in attrs:
+                    if attribute[0] == self.result_tag:
+                        self.link = attribute[1]
+                        self.targetCount += 1
+                        self.targetValue = self.link
+
+# -------------------------------------------------------------------------------------------------
 #  loadURL
 # -------------------------------------------------------------------------------------------------
 def find_re_in_site(url, regex):
     """Opens a site, downloads its content and check with a regular expression
     whether any matching string can be found.
-    
+
     :param url: site URL to be scanned for matching strings
     :param regex: regular expression to be searched for
     """
@@ -154,32 +187,29 @@ def find_re_in_site(url, regex):
 # -------------------------------------------------------------------------------------------------
 def loadURL(url, maxTryCount=5):
     global logger
+    logger.debug('Start loading URL "{}".'.format(str(url)))
 
-    tryCounter = 1
-    while True:
-
-        logger.debug('Start loading URL "{}".'.format(str(url)))
-        try:
-            agent_string = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:34.0) Gecko/20100101 Firefox/34.0'
-            #'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'
-            #'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
-            #'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0'
-            headers = { 'User-Agent' : agent_string }
-            request = urllib.request.Request(url, None, headers)
-
-            response = urllib.request.urlopen(request)
-            # read from URL and decode according to HTTP header info
-            result = response.read().decode(response.headers.get_content_charset())
-
+    agent_string = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:34.0) Gecko/20100101 Firefox/34.0'
+    #'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'
+    #'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+    #'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0'
+    headers = { 'User-Agent' : agent_string }
+    #request = urllib.request.Request(url, None, headers)
+    #response = urllib.request.urlopen(request)
+    # read from URL and decode according to HTTP header info
+    #result = response.read().decode(response.headers.get_content_charset())
+    try:
+        logger.debug('requesting: {}'.format(url))
+        request = requests.get(url)#, max_retries=maxTryCount)
+        if request.status_code == 200:
+            result = request.text
             logger.debug('URL successfully loaded.')
-            return result
-        except urllib.error.URLError as e:
-            logger.debug('URLError: {}.'.format(str(e)))
-            if tryCounter >= maxTryCount:
-                return None
-        tryCounter = tryCounter + 1
-
-    return None
+        else:
+            result = ''
+            logger.warn('URL could not be loaded.')
+        return result
+    except requests.exception.ConnectionError:
+        logger.warn('URL could not be loaded.')
 
 
 # -------------------------------------------------------------------------------------------------

@@ -15,6 +15,7 @@ from PyQt4 import QtGui
 from PyQt4 import QtCore
 
 from src.plugins import MangaFoxPlugin
+from src.plugins import OneMangaPlugin
 from src import MangaBase
 
 
@@ -31,6 +32,7 @@ class LoaderWindow(QtGui.QWidget):
         self.main_gui = parent
         self.manga_store_path = os.getcwd()
         self.plugin = MangaFoxPlugin.MangaFoxPlugin()
+        #self.plugin = OneMangaPlugin.OneMangaPlugin()
         self.manga_list = []
         self.chapter_count = 1
         self.create_fonts()
@@ -103,7 +105,7 @@ class LoaderWindow(QtGui.QWidget):
             with open(MANGA_LIST_FILE, 'rb') as f:
                 self.manga_list = pickle.load(f)
                 for manga in self.manga_list:
-                    self.mangaComboBox.addItem(manga.name)
+                    self.mangaComboBox.addItem(manga.name, userData=manga)
         except FileNotFoundError:
             logger.warn('No manga list file found.')
             self.on_update_manga_list()
@@ -114,7 +116,7 @@ class LoaderWindow(QtGui.QWidget):
         # load comboBox with items
         self.manga_list = self.plugin.getListOfMangas()
         for manga in self.manga_list:
-            self.mangaComboBox.addItem(manga.name)
+            self.mangaComboBox.addItem(manga.name, userData=manga)
         # store manga list in file
         with open(MANGA_LIST_FILE, 'wb') as f:
             # pickle the manga list using the highest protocol available
@@ -134,31 +136,42 @@ class LoaderWindow(QtGui.QWidget):
         startChapter = self.chapter_begin.value()
         endChapter = self.chapter_end.value()
         self.chapter_count = endChapter - startChapter
-        logger.info('Loading chapters {} - {}'.format(str(startChapter), str(endChapter)))
+        logger.info('Loading chapters {} - {}'.format(str(startChapter), str(endChapter)))        
+        # setup progress bar for loading of chapters
         self.loader_progress.setRange(startChapter - 1, endChapter)
         self.loader_progress.setValue(startChapter - 1)
         # enforce event processing
         QtGui.QApplication.processEvents()
         for i in range(startChapter, endChapter + 1):
-            loader.handleChapter(self.mangaComboBox.currentText(), i)
-            self.loader_progress.setValue(i)
-            # enforce event processing
-            QtGui.QApplication.processEvents()
-            #if doZip:
-            #    loader.zipChapter(mangaName, i)
+            # find chapter object
+            currentChapter = None
+            for c in self.currentChapterList:
+                if c.chapterNo == i:
+                    currentChapter = c
+                    break
+            if currentChapter:
+                loader.handleChapter2(currentChapter)
+                self.loader_progress.setValue(i)
+                # enforce event processing
+                QtGui.QApplication.processEvents()
+                #if doZip:
+                #    loader.zipChapter(mangaName, i)
+            else:
+                logger.error('Could not find chapter object!')
 
     @QtCore.pyqtSlot()
     def on_update_chapter_fields(self):
         chosen_manga = self.mangaComboBox.currentText()
         logger.debug('Combo box changed to {}.'.format(chosen_manga))
         # look for chosen manga and get chapter list
+        # TODO Use this currentManga = self.mangaComboBox.itemData(self.mangaComboBox.currentIndex())
         for manga in self.manga_list:
             if manga.name == chosen_manga:
                 chosen_manga = manga
                 break
-        chapter_list = self.plugin.getListOfChapters(chosen_manga)
+        self.currentChapterList = self.plugin.getListOfChapters(chosen_manga)
         # set max and min for input fields
-        chapter_number_list = [x.chapterNo for x in chapter_list]
+        chapter_number_list = [x.chapterNo for x in self.currentChapterList]
         if chapter_number_list:
             maximum = max(chapter_number_list)
             minimum = min(chapter_number_list)
