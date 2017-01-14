@@ -1,8 +1,10 @@
 TODO
 ----
 
+- FEATURE: add plugin for MangaFox
 - BUG: uses wrong Manga image destination names for MangaHere downloads
 - BUG: zipper error, if dir does not exist (e.g. if manga is at the end)
+- Remove encodings declaration (not necessary on Python 3)
 - MangaReader: internal name
   - " " => "-" (remove multi "-" occurence)
   - to lower
@@ -13,7 +15,6 @@ TODO
 		<img src="http://c.mhcdn.net/store/manga/106/01-001.0/compressed/OP_ToC.jpg?v=11192682402" onerror="this.src=\'http://m.mhcdn.net/store/manga/106/01-001.0/compressed/OP_ToC.jpg?v=11192682402\'" width="552" id="image" alt="One Piece 1 Page 2" />
 		</a>
 	</section>
-
 
 - implement threads to load multiple chapters/images
 - write all image data into a file
@@ -27,7 +28,5 @@ TODO
 			"""Klasse..."""
 			def __init__(self):
 				"""Konstruktor"""
-  - 4 spaces instead of tab
-  - xrange() instead of range()
   - member variables public, protected and private check ("_", "__"
   - check with pep8 and pylint
