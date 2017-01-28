@@ -14,9 +14,9 @@ MangaLoader is released under the GNU General Public License v2 or newer
 USAGE
 -----
 
-Usage:
+Usage from command line:
 ```
-  MangaLoader.py [options]
+  ./MangaLoader.py [options]
 ```
 
 Options:
@@ -31,7 +31,16 @@ Options:
   -o DEST_DIR        destination directory
 ```
 
+Usage for GUI:
+```
+  ./MangaLoaderGUI.py
+```
+
 REQUIREMENTS
 ------------
-MangaLoader requires at least Python 3.3.
+MangaLoader requires at least Python 3.3. Further Python dependencies are
+listed in the requirements file.
 
+Before installing the Python library dryscrape, install its dependencies:
+
+    apt-get install qt5-default libqt5webkit5-dev build-essential python-lxml python-pip xvfb
