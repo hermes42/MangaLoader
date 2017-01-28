@@ -185,7 +185,12 @@ def find_re_in_site(url, regex):
 # -------------------------------------------------------------------------------------------------
 #  loadURL
 # -------------------------------------------------------------------------------------------------
-def loadURL(url, maxTryCount=5):
+def loadURL(url, maxTryCount=5, evaluateJS=False):
+    """Load content of a given URL and return the pages source.
+    
+    Sources:
+     * http://stackoverflow.com/questions/8049520/web-scraping-javascript-page-with-python
+    """
     global logger
     logger.debug('Start loading URL "{}".'.format(str(url)))
 
@@ -193,23 +198,29 @@ def loadURL(url, maxTryCount=5):
     #'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'
     #'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
     #'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0'
-    headers = { 'User-Agent' : agent_string }
-    #request = urllib.request.Request(url, None, headers)
-    #response = urllib.request.urlopen(request)
-    # read from URL and decode according to HTTP header info
-    #result = response.read().decode(response.headers.get_content_charset())
-    try:
-        logger.debug('requesting: {}'.format(url))
-        request = requests.get(url)#, max_retries=maxTryCount)
-        if request.status_code == 200:
-            result = request.text
-            logger.debug('URL successfully loaded.')
-        else:
-            result = ''
-            logger.warn('URL could not be loaded.')
+    
+    if evaluateJS:
+        # render web page in browser with JS and get result from there
+        import dryscrape
+        session = dryscrape.Session()
+        session.visit(url)
+        result = session.body()
+        print(result)
         return result
-    except requests.exception.ConnectionError:
-        logger.warn('URL could not be loaded.')
+    else:
+        headers = { 'User-Agent' : agent_string }
+        try:
+            logger.debug('requesting: {}'.format(url))
+            request = requests.get(url)#, max_retries=maxTryCount)
+            if request.status_code == 200:
+                result = request.text
+                logger.debug('URL successfully loaded.')
+            else:
+                result = ''
+                logger.warn('URL could not be loaded.')
+            return result
+        except requests.exception.ConnectionError:
+            logger.warn('URL could not be loaded.')
 
 
 # -------------------------------------------------------------------------------------------------
