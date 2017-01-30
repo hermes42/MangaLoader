@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 
 import os
-import urllib.request, urllib.error, urllib.parse
 import logging
-from string import Template
+import mimetypes
+from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor
+
+import requests
 
 from . import MangaZipper
 
@@ -14,7 +16,7 @@ from . import MangaZipper
 
 logger = logging.getLogger('MangaLoader.MangaBase')
 
-MAX_DOWNLOAD_WORKER = 2
+MAX_DOWNLOAD_WORKER = 1
 
 
 # -------------------------------------------------------------------------------------------------
@@ -26,6 +28,7 @@ class Manga(object):
         self.name = name
         self.chapterList = []
         self.mangaURL = ''
+        self.internalName = ''
 
     def __str__(self):
         return str(self.name)
@@ -84,22 +87,26 @@ class Loader(object):
         self.loaderPlugin = loaderPlugin
         self.destDir = destDir
 
-    def handleChapter(self, name, chapterNo):
-        logger.debug('handleChapter({}, {})'.format(str(name), str(chapterNo)))
-        chapter = Chapter(Manga(name), chapterNo)
-
+    def handleChapter2(self, chapter):
+        logger.debug('handleChapter({})'.format(chapter))
         if self.parseChapter(chapter) == False:
             return False
-
         if self.loadChapter(chapter) == False:
             return False
+        return True
 
+    def handleChapter(self, name, chapterNo):
+        logger.debug('handleChapter({}, {})'.format(name, chapterNo))
+        chapter = Chapter(Manga(name), chapterNo)
+        if self.parseChapter(chapter) == False:
+            return False
+        if self.loadChapter(chapter) == False:
+            return False
         return True
 
     def handleImage(self, name, chapterNo, imageNo):
-        logger.debug('handleChapter({}, {}, {})'.format(str(name), str(chapterNo), str(imageNo)))
+        logger.debug('handleChapter({}, {}, {})'.format(name, chapterNo, imageNo))
         image = Image(Chapter(Manga(name), chapterNo), imageNo)
-
         if self.parseImage(image) == False:
             return False
         if self.loadImage(image) == False:
@@ -107,7 +114,7 @@ class Loader(object):
         return True
 
     def zipChapter(self, name, chapterNo):
-        logger.debug('zipChapter({}, {})'.format(str(name), str(chapterNo)))
+        logger.debug('zipChapter({}, {})'.format(name, chapterNo))
         manga = Manga(name)
         chapter = Chapter(manga, chapterNo)
         if MangaZipper.createZip(self.getChapterDir(chapter), self.getMangaDir(manga)):
@@ -116,10 +123,18 @@ class Loader(object):
             return True
         return False
 
+    def zipChapter2(self, manga, chapter):
+        logger.debug('zipChapter({}, {})'.format(manga.name, chapter.chapterNo))
+        if MangaZipper.createZip(self.getChapterDir(chapter), self.getMangaDir(manga)):
+            logger.info('cbz: "' + str(chapter) + '"')
+            print('cbz: "' + str(chapter) + '"')
+            return True
+        return False
 
     def parseManga(self, manga):
         retValue = False
-        for i in range(1,1000):
+        # FIXME Do NOT use maximum number of chapters because "One Piece" :-)
+        for i in range(1, 1000):
             chapter = Chapter(manga, i)
             if self.parseChapter(chapter) == False:
                 break
@@ -155,29 +170,41 @@ class Loader(object):
 
     def loadChapter(self, chapter):
         list_of_futures = list()
+        # context manager cleans up automatically after all threads have executed 
         with ThreadPoolExecutor(max_workers=MAX_DOWNLOAD_WORKER) as executor:
             for image in chapter.imageList:
                 f = executor.submit(self.loadImage, image)
                 list_of_futures.append(f)
-        return all(list_of_futures)
+        return True
 
-    def loadImage(self, image):
+    def loadImage(self, image):       
         # calculate destination path and call storeFileOnDisk()
         if self.storeFileOnDisk(image.imageUrl, self.getImagePath(image)) == False:
             return False
-        logger.info('load: "' + str(image) + '"')
-        print('load: "' + str(image) + '"')
+        logger.info('load: "{}"'.format(image))
+        print('load: "{}"'.format(image))
         return True
 
-
     def getMangaDir(self, manga):
-        return Template(self.destDir + '/${MangaName}/').substitute(MangaName=manga.name)
+        if type(manga) == Manga:
+            return os.path.join(self.destDir, manga.name)
+        elif type(manga) == str:
+            return os.path.join(self.destDir, manga)
+        else:
+            logger.error('Wrong type of parameter "manga"!')
 
     def getChapterDir(self, chapter):
-        return Template(self.getMangaDir(chapter.manga) + '${MangaName} ${ChapterNo}/').substitute(MangaName=chapter.manga.name, ChapterNo=chapter.chapterNo)
+        return os.path.join(self.getMangaDir(chapter.manga), '{} {}'.format(chapter.manga, chapter.chapterNo))
 
     def getImagePath(self, image):
-        return Template(self.getChapterDir(image.chapter) + '${ImageNo}.${Ext}').substitute(ImageNo=str(image.imageNo).rjust(2, '0'), Ext=image.imageUrl[image.imageUrl.rfind('.') + 1 : len(image.imageUrl)])
+        """
+        Builds the path to save the downloaded image to. It contains no file
+        extension, because it is later added depending on the header
+        information of the HTTP response.
+        """
+        imageExtension = '' # '.' + os.path.splitext(image.imageUrl)
+        return os.path.join(self.getChapterDir(image.chapter),
+                            '{ImageNo:03d}{Ext}'.format(ImageNo=image.imageNo,Ext=imageExtension))
 
     def storeFileOnDisk(self, source, dest):
         # create directories first
@@ -185,15 +212,27 @@ class Loader(object):
             os.makedirs(dest[0 : dest.rfind('/')])
         except OSError:
             pass
-        # open source url and copy to destination file
-        # retry 5 times
+        # open source url and copy to destination file; retry 5 times
+        # TODO: Check how to implement retry counter with requests library.
         tryCounter = 1
         while True:
             try:
-                f = urllib.request.urlopen(source)
-                out = open(dest,'wb')
-                out.write(f.read())
-                out.close()
+                r = requests.get(source, stream=True)
+                # get file extension for content type
+                content_type = r.headers['content-type']
+                extension = mimetypes.guess_extension(content_type)
+                # alternatively use urllib to parse url to get extension
+                parsed = urlparse(source)
+                root, ext = os.path.splitext(parsed.path)
+                if extension != ext:
+                    logger.warn('File extension unclear: {} <-> {}'.format(extension, ext))
+                # save data to file if status code 200 was returned
+                if r.status_code == 200:
+                    with open(dest+extension, 'wb') as f:
+                        # write chunks of default size (128 byte)
+                        for chunk in r:
+                            f.write(chunk)
+                self.loaderPlugin.postprocessImage(dest)
                 return True
             except urllib.error.URLError:
                 logger.warning('failed to load "' + str(source) + '" (' + tryCounter + ')')
